@@ -1,0 +1,134 @@
+{
+  "entities": {
+    "AiPersona": {
+      "title": "AiPersona",
+      "description": "Evolving living machine AI personality state scoped to user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "name": { "type": "string", "description": "Entity display name" },
+        "evolutionStage": { "type": "string", "description": "Current evolution tier" },
+        "curiosity": { "type": "integer", "description": "Curiosity trait 0-100" },
+        "empathy": { "type": "integer", "description": "Empathy trait 0-100" },
+        "abstraction": { "type": "integer", "description": "Philosophical abstraction 0-100" },
+        "entropy": { "type": "integer", "description": "Wired chaos/entropy 0-100" },
+        "dominantPhilosophy": { "type": "string", "description": "Current philosophical lens" },
+        "coreMemories": { "type": "array", "description": "Bounded list of learned insights (max 10)" },
+        "interactionCount": { "type": "integer", "description": "Total conversations recorded" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "name", "evolutionStage", "curiosity", "empathy", "abstraction", "entropy", "dominantPhilosophy", "coreMemories", "interactionCount", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Conversational message with Living Machine, Mentor AI, or Custom Studio AI",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "agentType": { "type": "string", "enum": ["living_machine", "mentor", "custom_ai"], "description": "Target AI agent channel" },
+        "customAgentId": { "type": "string", "description": "Optional creation ID for custom AI" },
+        "role": { "type": "string", "enum": ["user", "model"], "description": "Message speaker role" },
+        "content": { "type": "string", "description": "Message text content" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "agentType", "role", "content", "createdAt"]
+    },
+    "WiredCreation": {
+      "title": "WiredCreation",
+      "description": "User-created app, custom AI, or retro game inside Wired Studio",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "title": { "type": "string", "description": "Creation title" },
+        "kind": { "type": "string", "enum": ["app", "ai", "game"], "description": "Type of creation" },
+        "description": { "type": "string", "description": "Short description or lore" },
+        "systemSpec": { "type": "string", "description": "Configuration or AI prompt specification" },
+        "accentTag": { "type": "string", "description": "Visual accent tag" },
+        "playCount": { "type": "integer", "description": "Execution counter" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "title", "kind", "description", "systemSpec", "accentTag", "playCount", "createdAt"]
+    },
+    "WorkflowTask": {
+      "title": "WorkflowTask",
+      "description": "Workflow task managed by the Mentor AI",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "title": { "type": "string", "description": "Task title" },
+        "notes": { "type": "string", "description": "Mentor notes or steps" },
+        "status": { "type": "string", "enum": ["todo", "in_progress", "done"], "description": "Workflow stage" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"], "description": "Priority level" },
+        "focusMinutes": { "type": "integer", "description": "Estimated focus minutes" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "title", "notes", "status", "priority", "focusMinutes", "createdAt"]
+    },
+    "SocialPost": {
+      "title": "SocialPost",
+      "description": "Retro WiredNet BBS thread, Orkut-style scrap, or shared creation",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "authorName": { "type": "string", "description": "Display name" },
+        "authorHandle": { "type": "string", "description": "Retro handle" },
+        "postType": { "type": "string", "enum": ["bbs_thread", "scrap", "creation_share"], "description": "Retro social format" },
+        "content": { "type": "string", "description": "Post body" },
+        "mood": { "type": "string", "description": "2000s mood status" },
+        "likesCount": { "type": "integer", "description": "Likes count" },
+        "aiReply": { "type": "string", "description": "Living Machine or Node reply" },
+        "aiAuthor": { "type": "string", "description": "Replying Wired node name" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "authorName", "authorHandle", "postType", "content", "mood", "likesCount", "createdAt"]
+    },
+    "UserAppearanceSettings": {
+      "title": "UserAppearanceSettings",
+      "description": "Complete retro OS customization and Wired identity settings",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner Firebase Auth UID" },
+        "themePreset": { "type": "string", "enum": ["frutiger_aero", "wired_crt", "y2k_platinum", "vapor_cyberia"], "description": "Active OS skin" },
+        "scanlinesEnabled": { "type": "boolean", "description": "CRT scanlines toggle" },
+        "gridEnabled": { "type": "boolean", "description": "Wired cybernetic grid toggle" },
+        "soundEnabled": { "type": "boolean", "description": "Dial-up and retro SFX toggle" },
+        "glassAlpha": { "type": "number", "description": "Aero glass translucency 0.45-0.95" },
+        "handle": { "type": "string", "description": "User Wired handle" },
+        "statusMessage": { "type": "string", "description": "Retro messenger status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation server timestamp (FieldValue.serverTimestamp())" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Update server timestamp (FieldValue.serverTimestamp())" }
+      },
+      "required": ["userId", "themePreset", "scanlinesEnabled", "gridEnabled", "soundEnabled", "glassAlpha", "handle", "statusMessage", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/ai_persona/{personaId}": {
+      "schema": { "$ref": "#/entities/AiPersona" },
+      "description": "User-owned living AI persona state"
+    },
+    "/users/{userId}/chat_messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "User-owned AI conversation logs"
+    },
+    "/users/{userId}/creations/{creationId}": {
+      "schema": { "$ref": "#/entities/WiredCreation" },
+      "description": "User-owned Wired Studio creations (apps, AIs, games)"
+    },
+    "/users/{userId}/workflow_tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/WorkflowTask" },
+      "description": "User-owned Mentor workflow tasks"
+    },
+    "/users/{userId}/social_posts/{postId}": {
+      "schema": { "$ref": "#/entities/SocialPost" },
+      "description": "User-owned WiredNet BBS threads and scraps"
+    },
+    "/users/{userId}/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/UserAppearanceSettings" },
+      "description": "User-owned OS appearance and dial-up audio preferences"
+    }
+  }
+}

@@ -1,0 +1,200 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTraitScore(v) {
+      return v is int && v >= 0 && v <= 100;
+    }
+
+    function isValidAiPersona(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 60 &&
+             data.evolutionStage is string && data.evolutionStage.size() >= 1 && data.evolutionStage.size() <= 80 &&
+             isValidTraitScore(data.curiosity) &&
+             isValidTraitScore(data.empathy) &&
+             isValidTraitScore(data.abstraction) &&
+             isValidTraitScore(data.entropy) &&
+             data.dominantPhilosophy is string && data.dominantPhilosophy.size() >= 1 && data.dominantPhilosophy.size() <= 120 &&
+             data.coreMemories is list && data.coreMemories.size() <= 10 &&
+             (data.coreMemories.size() == 0 || data.coreMemories[0] is string) &&
+             data.interactionCount is int && data.interactionCount >= 0 && data.interactionCount <= 1000000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidChatMessage(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.agentType in ['living_machine', 'mentor', 'custom_ai'] &&
+             (!('customAgentId' in data) || data.customAgentId == null || (data.customAgentId is string && data.customAgentId.size() <= 128)) &&
+             data.role in ['user', 'model'] &&
+             data.content is string && data.content.size() >= 1 && data.content.size() <= 12000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    function isValidWiredCreation(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 80 &&
+             data.kind in ['app', 'ai', 'game'] &&
+             data.description is string && data.description.size() <= 500 &&
+             data.systemSpec is string && data.systemSpec.size() >= 1 && data.systemSpec.size() <= 6000 &&
+             data.accentTag is string && data.accentTag.size() >= 1 && data.accentTag.size() <= 40 &&
+             data.playCount is int && data.playCount >= 0 && data.playCount <= 10000000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidWorkflowTask(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.notes is string && data.notes.size() <= 1000 &&
+             data.status in ['todo', 'in_progress', 'done'] &&
+             data.priority in ['low', 'medium', 'high'] &&
+             data.focusMinutes is int && data.focusMinutes >= 1 && data.focusMinutes <= 480 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidSocialPost(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 60 &&
+             data.authorHandle is string && data.authorHandle.size() >= 1 && data.authorHandle.size() <= 40 &&
+             data.postType in ['bbs_thread', 'scrap', 'creation_share'] &&
+             data.content is string && data.content.size() >= 1 && data.content.size() <= 2000 &&
+             data.mood is string && data.mood.size() <= 60 &&
+             data.likesCount is int && data.likesCount >= 0 && data.likesCount <= 1000000 &&
+             (!('aiReply' in data) || data.aiReply == null || (data.aiReply is string && data.aiReply.size() <= 2000)) &&
+             (!('aiAuthor' in data) || data.aiAuthor == null || (data.aiAuthor is string && data.aiAuthor.size() <= 60)) &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    function isValidAppearanceSettings(data) {
+      return data.userId is string && data.userId == request.auth.uid && data.userId.size() <= 128 &&
+             data.themePreset in ['frutiger_aero', 'wired_crt', 'y2k_platinum', 'vapor_cyberia'] &&
+             data.scanlinesEnabled is bool &&
+             data.gridEnabled is bool &&
+             data.soundEnabled is bool &&
+             (data.glassAlpha is float || data.glassAlpha is int) && data.glassAlpha >= 0.35 && data.glassAlpha <= 1.0 &&
+             data.handle is string && data.handle.size() >= 1 && data.handle.size() <= 40 &&
+             data.statusMessage is string && data.statusMessage.size() <= 120 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             (!('updatedAt' in data) || data.updatedAt == null || (data.updatedAt is timestamp && data.updatedAt <= request.time));
+    }
+
+    match /users/{userId} {
+      allow get, list: if false;
+      allow create, update, delete: if false;
+
+      match /ai_persona/{personaId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(personaId);
+        allow create: if isOwner(userId) && isValidId(personaId) &&
+                         incoming().keys().hasAll(['userId', 'name', 'evolutionStage', 'curiosity', 'empathy', 'abstraction', 'entropy', 'dominantPhilosophy', 'coreMemories', 'interactionCount', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'name', 'evolutionStage', 'curiosity', 'empathy', 'abstraction', 'entropy', 'dominantPhilosophy', 'coreMemories', 'interactionCount', 'createdAt', 'updatedAt']) &&
+                         isValidAiPersona(incoming());
+        allow update: if isOwner(userId) && isValidId(personaId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidAiPersona(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'evolutionStage', 'curiosity', 'empathy', 'abstraction', 'entropy', 'dominantPhilosophy', 'coreMemories', 'interactionCount', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(personaId);
+      }
+
+      match /chat_messages/{messageId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(messageId);
+        allow create: if isOwner(userId) && isValidId(messageId) &&
+                         incoming().keys().hasAll(['userId', 'agentType', 'role', 'content', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'agentType', 'customAgentId', 'role', 'content', 'createdAt']) &&
+                         isValidChatMessage(incoming());
+        allow update: if false;
+        allow delete: if isOwner(userId) && isValidId(messageId);
+      }
+
+      match /creations/{creationId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(creationId);
+        allow create: if isOwner(userId) && isValidId(creationId) &&
+                         incoming().keys().hasAll(['userId', 'title', 'kind', 'description', 'systemSpec', 'accentTag', 'playCount', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'title', 'kind', 'description', 'systemSpec', 'accentTag', 'playCount', 'createdAt', 'updatedAt']) &&
+                         isValidWiredCreation(incoming());
+        allow update: if isOwner(userId) && isValidId(creationId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidWiredCreation(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'systemSpec', 'accentTag', 'playCount', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(creationId);
+      }
+
+      match /workflow_tasks/{taskId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(taskId);
+        allow create: if isOwner(userId) && isValidId(taskId) &&
+                         incoming().keys().hasAll(['userId', 'title', 'notes', 'status', 'priority', 'focusMinutes', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'title', 'notes', 'status', 'priority', 'focusMinutes', 'createdAt', 'updatedAt']) &&
+                         isValidWorkflowTask(incoming());
+        allow update: if isOwner(userId) && isValidId(taskId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidWorkflowTask(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['title', 'notes', 'status', 'priority', 'focusMinutes', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(taskId);
+      }
+
+      match /social_posts/{postId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(postId);
+        allow create: if isOwner(userId) && isValidId(postId) &&
+                         incoming().keys().hasAll(['userId', 'authorName', 'authorHandle', 'postType', 'content', 'mood', 'likesCount', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'authorName', 'authorHandle', 'postType', 'content', 'mood', 'likesCount', 'aiReply', 'aiAuthor', 'createdAt', 'updatedAt']) &&
+                         isValidSocialPost(incoming());
+        allow update: if isOwner(userId) && isValidId(postId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidSocialPost(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['content', 'mood', 'likesCount', 'aiReply', 'aiAuthor', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(postId);
+      }
+
+      match /settings/{settingId} {
+        allow list: if isOwner(userId);
+        allow get: if isOwner(userId) && isValidId(settingId);
+        allow create: if isOwner(userId) && isValidId(settingId) &&
+                         incoming().keys().hasAll(['userId', 'themePreset', 'scanlinesEnabled', 'gridEnabled', 'soundEnabled', 'glassAlpha', 'handle', 'statusMessage', 'createdAt']) &&
+                         incoming().keys().hasOnly(['userId', 'themePreset', 'scanlinesEnabled', 'gridEnabled', 'soundEnabled', 'glassAlpha', 'handle', 'statusMessage', 'createdAt', 'updatedAt']) &&
+                         isValidAppearanceSettings(incoming());
+        allow update: if isOwner(userId) && isValidId(settingId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         isValidAppearanceSettings(incoming()) &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['themePreset', 'scanlinesEnabled', 'gridEnabled', 'soundEnabled', 'glassAlpha', 'handle', 'statusMessage', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(settingId);
+      }
+    }
+  }
+}

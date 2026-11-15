@@ -1,0 +1,6 @@
+{
+  "name": "WiredOS",
+  "description": "Ambiente virtual estilo Wired e Frutiger Aero inspirado em Serial Experiments Lain, com IA viva evolutiva, IA Mentora de fluxo de trabalho, estúdio interativo de criação, rede social retrô e personalização completa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
